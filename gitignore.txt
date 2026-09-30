@@ -1,0 +1,8 @@
+token.json
+cache.json
+duplicates_report.json
+image_hash_cache.json
+resolved_state.json
+.env
+__pycache__/
+*.pyc
