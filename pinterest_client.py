@@ -24,13 +24,14 @@ SCOPES = [
 
 
 class PinterestClient:
-    def __init__(self, app_id: str, app_secret: str, redirect_uri: str):
+    def __init__(self, app_id: str = None, app_secret: str = None, redirect_uri: str = None, access_token: str = None):
         self.app_id = app_id
         self.app_secret = app_secret
         self.redirect_uri = redirect_uri
-        self.access_token = None
+        self.access_token = access_token
         self.refresh_token = None
-        self._load_token()
+        if not access_token:
+            self._load_token()
 
     # ---------- Auth ----------
 
@@ -103,8 +104,14 @@ class PinterestClient:
         resp = requests.request(method, url, headers=self._headers(), **kwargs)
         if resp.status_code == 401:
             # try one refresh, then retry once
-            self.refresh_access_token()
-            resp = requests.request(method, url, headers=self._headers(), **kwargs)
+            if self.refresh_token:
+                self.refresh_access_token()
+                resp = requests.request(method, url, headers=self._headers(), **kwargs)
+            else:
+                raise RuntimeError(
+                    "Access token rejected (401) and no refresh token available — "
+                    "your temporary token may have expired. Generate a new one and re-export PINTEREST_ACCESS_TOKEN."
+                )
         if resp.status_code == 429:
             wait = int(resp.headers.get("Retry-After", "5"))
             time.sleep(wait)

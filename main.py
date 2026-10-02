@@ -42,6 +42,10 @@ def _save_resolved(sigs: set):
 
 
 def get_client() -> PinterestClient:
+    temp_token = os.environ.get("PINTEREST_ACCESS_TOKEN")
+    if temp_token:
+        return PinterestClient(access_token=temp_token)
+
     app_id = os.environ.get("PINTEREST_APP_ID")
     app_secret = os.environ.get("PINTEREST_APP_SECRET")
     redirect_uri = os.environ.get("PINTEREST_REDIRECT_URI")
